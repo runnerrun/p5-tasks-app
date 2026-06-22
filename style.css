@@ -1,0 +1,204 @@
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Shippori+Mincho:wght@700;800&family=Inter:wght@400;600&display=swap');
+
+* { box-sizing: border-box; }
+
+body {
+  background: #1a1a1a;
+  color: #f0ede4;
+  font-family: 'Inter', sans-serif;
+  display: flex;
+  justify-content: center;
+  padding: 60px 20px;
+  margin: 0;
+  min-height: 100vh;
+}
+
+.app {
+  width: 100%;
+  max-width: 440px;
+}
+
+/* === BACKGROUND IMAGE: applies to any page with class "menu-page" === */
+body.menu-page {
+  background-image:
+    linear-gradient(rgba(10,10,10,0.45), rgba(10,10,10,0.55)),
+    url('images/bg.png');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+/* menu.html specifically uses menubg.png instead of bg.png */
+body.menu-bg-page {
+  background-image: url('images/menubg.png');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+/* extra bottom padding only needed on pages that also have the fixed footer image */
+body.has-footer .app {
+  padding-bottom: 380px;
+}
+
+/* === TITLE IMAGE === */
+.title-image {
+  max-width: 280px;
+  width: 100%;
+  height: auto;
+  display: block;
+  margin-bottom: 30px;
+}
+
+/* === BACK LINK (on tasks/stats/coming soon pages) === */
+.back-link {
+  display: inline-block;
+  background: #0e0e0e;
+  border: 2px solid #444;
+  color: #888;
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 10px 16px;
+  text-decoration: none;
+  margin-bottom: 30px;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.back-link:hover {
+  border-color: #e60012;
+  color: #f0ede4;
+}
+
+/* === VERTICAL IMAGE MENU (menu.html) ===
+   Each button is its own image (tasks2.png, stats.png, persona.png, system.png).
+   Rows stagger left/right slightly, like the P5 menu reference. */
+.vertical-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+}
+
+.menu-btn {
+  display: block;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  width: 100%;
+  max-width: 160px;
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.menu-btn img {
+  width: 100%;
+  height: auto;
+  display: block;
+  filter: brightness(0.8);
+}
+
+.menu-btn:hover img,
+.menu-btn:focus img {
+  filter: brightness(1);
+}
+
+/* tiny stagger, buttons touch edge to edge vertically */
+.menu-btn:nth-child(1) { align-self: flex-start; margin-left: 0; }
+.menu-btn:nth-child(2) { align-self: flex-start; margin-left: 8px; }
+.menu-btn:nth-child(3) { align-self: flex-start; margin-left: 16px; }
+.menu-btn:nth-child(4) { align-self: flex-start; margin-left: 8px; }
+
+@media (max-width: 480px) {
+  .menu-btn { max-width: 130px; }
+  .menu-btn:nth-child(1) { margin-left: 0; }
+  .menu-btn:nth-child(2) { margin-left: 5px; }
+  .menu-btn:nth-child(3) { margin-left: 10px; }
+  .menu-btn:nth-child(4) { margin-left: 5px; }
+}
+
+/* === GLITCH SELECTOR (reused on menu.html, now sized for wide image buttons) ===
+   Two SVG polygons with randomly-reshaping corners, blended together. */
+.glitch-selector {
+  position: absolute;
+  top: -4px;
+  left: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: 30;
+  overflow: visible;
+  transition: left 0.18s cubic-bezier(0.4, 0, 0.2, 1),
+              top 0.18s cubic-bezier(0.4, 0, 0.2, 1),
+              width 0.18s cubic-bezier(0.4, 0, 0.2, 1),
+              height 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glitch-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.glitch-svg polygon.red {
+  fill: #ff0022;
+  opacity: 0.6;
+}
+
+.glitch-svg polygon.cyan {
+  fill: #1cfeff;
+  opacity: 0.5;
+  mix-blend-mode: screen;
+}
+
+/* === FOOTER IMAGE + DIALOGUE (menu.html only) === */
+.footer-image-wrap {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 10;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.footer-inner {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+}
+
+.footer-image {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.dialogue-overlay {
+  position: absolute;
+  top: 75%;
+  left: 38%;
+  width: 50%;
+  font-size: 15px;
+  line-height: 1.4;
+  color: #ffffff;
+}
+
+@media (max-width: 480px) {
+  .dialogue-overlay { font-size: 12px; }
+}
+
+/* === EMPTY/PLACEHOLDER MESSAGE (coming soon pages) === */
+.soon-msg {
+  text-align: center;
+  padding: 60px 20px;
+  color: #666;
+  font-family: 'Shippori Mincho', serif;
+  font-size: 22px;
+  font-weight: 800;
+}

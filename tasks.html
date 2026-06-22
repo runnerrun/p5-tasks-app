@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>TASKS.</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .input-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+
+    #taskInput {
+      flex: 1;
+      background: #0e0e0e;
+      border: 2px solid #f0ede4;
+      color: #f0ede4;
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      padding: 12px 14px;
+      outline: none;
+    }
+
+    #taskInput:focus { border-color: #e60012; }
+    #taskInput::placeholder { color: #666; }
+
+    #taskCategory {
+      background: #0e0e0e;
+      border: 2px solid #f0ede4;
+      color: #f0ede4;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      padding: 0 10px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    #addBtn {
+      background: #e60012;
+      color: #1a1a1a;
+      border: none;
+      font-family: 'Archivo Black', sans-serif;
+      text-transform: uppercase;
+      font-size: 14px;
+      padding: 0 20px;
+      cursor: pointer;
+      clip-path: polygon(15% 0, 100% 0, 85% 100%, 0 100%);
+    }
+
+    #addBtn:hover { background: #f0ede4; }
+
+    #taskList {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    #taskList li {
+      background: #0e0e0e;
+      border-left: 4px solid #e60012;
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      font-size: 15px;
+      position: relative;
+      transition: transform 0.1s ease;
+    }
+
+    #taskList li:hover { transform: translateX(4px); }
+
+    #taskList li.done {
+      border-left-color: #444;
+      color: #666;
+    }
+
+    .task-text { position: relative; }
+
+    .task-text.struck::after {
+      content: '';
+      position: absolute;
+      left: -4px;
+      right: -4px;
+      top: 50%;
+      height: 2px;
+      background: #e60012;
+      transform: rotate(-4deg);
+    }
+
+    .task-tag {
+      font-size: 10px;
+      color: #e60012;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-right: 8px;
+      font-weight: 600;
+    }
+
+    .delBtn {
+      background: none;
+      border: none;
+      color: #666;
+      font-family: 'Archivo Black', sans-serif;
+      font-size: 14px;
+      cursor: pointer;
+      padding: 4px 8px;
+    }
+
+    .delBtn:hover { color: #e60012; }
+
+    .empty-msg {
+      color: #444;
+      font-size: 14px;
+      text-align: center;
+      padding: 20px 0;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body class="menu-page has-footer">
+  <div class="app">
+
+    <!-- TITLE IMAGE: same as menu.html -->
+    <img src="images/title.png" alt="Tasks" class="title-image">
+
+    <a href="menu.html" class="back-link">&larr; Menu</a>
+
+    <div class="input-row">
+      <input type="text" id="taskInput" placeholder="New task...">
+      <select id="taskCategory">
+        <option value="knowledge">Knowledge</option>
+        <option value="guts">Guts</option>
+        <option value="proficiency">Proficiency</option>
+        <option value="kindness">Kindness</option>
+        <option value="charm">Charm</option>
+      </select>
+      <button id="addBtn">Add</button>
+    </div>
+
+    <ul id="taskList"></ul>
+
+  </div>
+
+  <!-- FOOTER IMAGE: drop your image at images/footer.png -->
+  <div class="footer-image-wrap">
+    <div class="footer-inner">
+      <img src="images/footer.png" alt="" class="footer-image">
+      <div class="dialogue-overlay" id="dialogueText">Let's knock out today's tasks.</div>
+    </div>
+  </div>
+
+  <script>
+    const input = document.getElementById('taskInput');
+    const categorySelect = document.getElementById('taskCategory');
+    const addBtn = document.getElementById('addBtn');
+    const list = document.getElementById('taskList');
+    const dialogueText = document.getElementById('dialogueText');
+
+    // swap these for your own character's lines
+    const lines = {
+      idle: "Let's knock out today's tasks.",
+      added: "Got it. Added to the list.",
+      done: "One down. Keep going.",
+      undone: "Back on the list, then.",
+      deleted: "Gone. Like it never happened.",
+      empty: "Nothing left. Not bad."
+    };
+
+    function say(key) {
+      dialogueText.textContent = lines[key];
+    }
+
+    // how many points needed to go up one level — must match stats.html
+    const POINTS_PER_LEVEL = 10;
+
+    let stats = JSON.parse(localStorage.getItem('stats')) || {
+      knowledge: 0, guts: 0, proficiency: 0, kindness: 0, charm: 0
+    };
+
+    function saveStats() {
+      localStorage.setItem('stats', JSON.stringify(stats));
+    }
+
+    // load saved tasks, or start empty (older tasks may not have a category — default them)
+    let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+    tasks.forEach(t => { if (!t.category) t.category = 'knowledge'; });
+
+    function save() {
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+
+    function render() {
+      list.innerHTML = '';
+
+      if (tasks.length === 0) {
+        const msg = document.createElement('li');
+        msg.className = 'empty-msg';
+        msg.textContent = 'No tasks yet. Add one above.';
+        list.appendChild(msg);
+        say('empty');
+        return;
+      }
+
+      tasks.forEach((task, index) => {
+        const li = document.createElement('li');
+        if (task.done) li.classList.add('done');
+
+        const tagSpan = document.createElement('span');
+        tagSpan.className = 'task-tag';
+        tagSpan.textContent = task.category;
+
+        const textSpan = document.createElement('span');
+        textSpan.className = 'task-text' + (task.done ? ' struck' : '');
+        textSpan.textContent = task.text;
+
+        const textWrap = document.createElement('span');
+        textWrap.appendChild(tagSpan);
+        textWrap.appendChild(textSpan);
+
+        li.addEventListener('click', () => {
+          tasks[index].done = !tasks[index].done;
+
+          if (tasks[index].done) {
+            stats[task.category]++;
+            say('done');
+          } else {
+            stats[task.category] = Math.max(0, stats[task.category] - 1);
+            say('undone');
+          }
+
+          saveStats();
+          save();
+          render();
+        });
+
+        const delBtn = document.createElement('button');
+        delBtn.className = 'delBtn';
+        delBtn.textContent = 'X';
+        delBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          tasks.splice(index, 1);
+          say('deleted');
+          save();
+          render();
+        });
+
+        li.appendChild(textWrap);
+        li.appendChild(delBtn);
+        list.appendChild(li);
+      });
+    }
+
+    function addTask() {
+      const text = input.value.trim();
+      if (text === '') return;
+      const category = categorySelect.value;
+      tasks.push({ text: text, done: false, category: category });
+      input.value = '';
+      say('added');
+      save();
+      render();
+    }
+
+    addBtn.addEventListener('click', addTask);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') addTask();
+    });
+
+    render();
+  </script>
+
+</body>
+</html>

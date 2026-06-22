@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>STATS.</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .stat-row { margin-bottom: 18px; }
+
+    .stat-label-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 6px;
+    }
+
+    .stat-name {
+      font-family: 'Shippori Mincho', serif;
+      font-weight: 800;
+      font-size: 15px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #f0ede4;
+    }
+
+    .stat-level {
+      font-size: 13px;
+      color: #e60012;
+      font-weight: 600;
+    }
+
+    .stat-bar-bg {
+      background: #0e0e0e;
+      border: 2px solid #444;
+      height: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-bar-fill {
+      background: #e60012;
+      height: 100%;
+      transition: width 0.3s ease;
+    }
+
+    .stat-points {
+      font-size: 11px;
+      color: #666;
+      margin-top: 3px;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+
+    <a href="menu.html" class="back-link">&larr; Menu</a>
+
+    <div id="statsContainer"></div>
+
+  </div>
+
+  <script>
+    const statsContainer = document.getElementById('statsContainer');
+
+    // must match the value used in tasks.html
+    const POINTS_PER_LEVEL = 10;
+
+    const statNames = ['knowledge', 'guts', 'proficiency', 'kindness', 'charm'];
+
+    let stats = JSON.parse(localStorage.getItem('stats')) || {
+      knowledge: 0, guts: 0, proficiency: 0, kindness: 0, charm: 0
+    };
+
+    function renderStats() {
+      statsContainer.innerHTML = '';
+
+      statNames.forEach(name => {
+        const points = stats[name];
+        const level = Math.floor(points / POINTS_PER_LEVEL);
+        const pointsIntoLevel = points % POINTS_PER_LEVEL;
+        const percent = (pointsIntoLevel / POINTS_PER_LEVEL) * 100;
+
+        const row = document.createElement('div');
+        row.className = 'stat-row';
+        row.innerHTML = `
+          <div class="stat-label-row">
+            <span class="stat-name">${name}</span>
+            <span class="stat-level">Lv ${level}</span>
+          </div>
+          <div class="stat-bar-bg">
+            <div class="stat-bar-fill" style="width: ${percent}%;"></div>
+          </div>
+          <div class="stat-points">${pointsIntoLevel} / ${POINTS_PER_LEVEL}</div>
+        `;
+        statsContainer.appendChild(row);
+      });
+    }
+
+    renderStats();
+  </script>
+
+</body>
+</html>

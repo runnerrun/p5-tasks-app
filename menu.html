@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>MENU.</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="menu-bg-page">
+  <div class="app">
+
+    <!-- VERTICAL IMAGE MENU -->
+    <nav class="vertical-menu" id="navBar">
+      <div class="glitch-selector" id="glitchSelector">
+        <svg class="glitch-svg" viewBox="0 0 100 50" preserveAspectRatio="none">
+          <polygon class="red" id="glitchRed" points="10,20 80,20 80,30 20,30"></polygon>
+          <polygon class="cyan" id="glitchCyan" points="10,20 80,20 80,30 20,30"></polygon>
+        </svg>
+      </div>
+
+      <button class="menu-btn" data-href="tasks.html">
+        <img src="images/tasks2.png" alt="Tasks">
+      </button>
+      <button class="menu-btn" data-href="stats.html">
+        <img src="images/stats.png" alt="Stats">
+      </button>
+      <button class="menu-btn" data-href="soon1.html">
+        <img src="images/persona.png" alt="Coming Soon">
+      </button>
+      <button class="menu-btn" data-href="soon2.html">
+        <img src="images/system.png" alt="Coming Soon">
+      </button>
+    </nav>
+
+  </div>
+
+  <script>
+    const navBar = document.getElementById('navBar');
+    const glitchSelector = document.getElementById('glitchSelector');
+    const menuButtons = document.querySelectorAll('.menu-btn');
+    let currentNavIndex = 0;
+
+    function moveSelectorTo(btn) {
+      // position the glitch box exactly over the given button, relative to the nav container
+      const barRect = navBar.getBoundingClientRect();
+      const btnRect = btn.getBoundingClientRect();
+      glitchSelector.style.left = (btnRect.left - barRect.left - 2) + 'px';
+      glitchSelector.style.top = (btnRect.top - barRect.top - 1) + 'px';
+      glitchSelector.style.width = (btnRect.width + 4) + 'px';
+      glitchSelector.style.height = (btnRect.height + 2) + 'px';
+    }
+
+    function focusNav(index) {
+      currentNavIndex = index;
+      moveSelectorTo(menuButtons[index]);
+    }
+
+    menuButtons.forEach((btn, index) => {
+      btn.addEventListener('mouseenter', () => focusNav(index));
+      btn.addEventListener('click', () => {
+        window.location.href = btn.dataset.href;
+      });
+    });
+
+    // arrow key navigation, up/down moves the highlighted selector between buttons
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown') {
+        focusNav(Math.min(currentNavIndex + 1, menuButtons.length - 1));
+      } else if (e.key === 'ArrowUp') {
+        focusNav(Math.max(currentNavIndex - 1, 0));
+      } else if (e.key === 'Enter') {
+        window.location.href = menuButtons[currentNavIndex].dataset.href;
+      }
+    });
+
+    window.addEventListener('load', () => moveSelectorTo(menuButtons[currentNavIndex]));
+    window.addEventListener('resize', () => moveSelectorTo(menuButtons[currentNavIndex]));
+    moveSelectorTo(menuButtons[currentNavIndex]);
+
+    // === GLITCH POLYGON ANIMATION ===
+    // randomly reshapes the two SVG polygons every interval — widened ranges to suit the longer buttons
+    const glitchRed = document.getElementById('glitchRed');
+    const glitchCyan = document.getElementById('glitchCyan');
+
+    const GLITCH_SVG_WIDTH = 100;  // must match the SVG viewBox width
+    const GLITCH_SVG_HEIGHT = 50;  // must match the SVG viewBox height
+    const GLITCH_SPEED_MS = 120;   // how often it reshapes — lower = more frantic
+    const EDGE_PADDING = 3;        // keeps points from touching the very edge
+
+    function randomPoint(maxX, maxY) {
+      const x = EDGE_PADDING + Math.random() * (maxX - EDGE_PADDING * 2);
+      const y = EDGE_PADDING + Math.random() * (maxY - EDGE_PADDING * 2);
+      return [x, y];
+    }
+
+    function randomPolygonPoints() {
+      // four points roughly in each quadrant, widened horizontally to match the wider buttons
+      const halfW = GLITCH_SVG_WIDTH / 2;
+      const halfH = GLITCH_SVG_HEIGHT / 2;
+      const [x1, y1] = randomPoint(halfW, halfH);
+      const [x2, y2] = randomPoint(halfW, halfH);
+      const [x3, y3] = randomPoint(halfW, halfH);
+      const [x4, y4] = randomPoint(halfW, halfH);
+      return `${x1},${y1} ${x2 + halfW},${y2} ${x3 + halfW},${y3 + halfH} ${x4},${y4 + halfH}`;
+    }
+
+    function glitchTick() {
+      glitchRed.setAttribute('points', randomPolygonPoints());
+      glitchCyan.setAttribute('points', randomPolygonPoints());
+    }
+
+    setInterval(glitchTick, GLITCH_SPEED_MS);
+  </script>
+
+</body>
+</html>
